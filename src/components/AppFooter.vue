@@ -1,6 +1,6 @@
 <template>
 	<div class="footer">
-		<a target="_blank" href="https://github.com/kurtishill/creativeproject4">GitHub</a>
+		<a target="_blank" href="https://github.com/kurtishill/creativeproject5">GitHub</a>
 	</div>
 </template>
 
