@@ -4,6 +4,10 @@
 	  		<h1 class="header">There are no quizzes available!</h1>
 	  	</div>
 	  	<div v-else>
+	  		<form v-on:submit.prevent="getUserQuizList">
+	  			<input v-model="subject" type="text" placeholder="Search by subject">
+	  			<button type="submit">Search</button>
+	  		</form>
 	  		<ul>
 	  			<li class="quiz-list" v-for="quiz in quizList">
 	  				<h5>{{ quiz.name }}</h5>&nbsp&nbsp<h5 style="color: #FF6F0D;">{{ quiz.subject }}</h5>
@@ -23,7 +27,7 @@
 		components: { PublicQuizzes },
 		data () {
 			return {
-
+				subject: '',
 			}
 		},
 		created: function() {
@@ -36,7 +40,10 @@
 		},
 		methods: {
 			getUserQuizList: function() {
-				this.$store.dispatch('getUserQuizList').then(response => {
+				this.$store.dispatch('getUserQuizList', {
+					subject: this.subject
+				}).then(response => {
+					this.subject = '';
 					return true;
 				}).catch(err => {
 					console.log("Error while getting userQuizList.");
@@ -87,6 +94,16 @@
   button.delete {
   	background: red;
   	min-width: 30px;
+  }
+
+  input[type=text] {
+  	margin-top: 1%;
+  	margin-left: 2%;
+  	border: 1px solid rgb(66, 184, 221);
+  }
+
+  button[type=submit] {
+  	background: #26E807;
   }
 
   @media (min-width: 1200px) {

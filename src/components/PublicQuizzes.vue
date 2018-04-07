@@ -4,6 +4,10 @@
 	  		<h1 class="header">There are no quizzes available!</h1>
 	  	</div>
 	  	<div v-else>
+	  		<form v-on:submit.prevent="getPublicQuizList">
+	  			<input v-model="subject" type="text" placeholder="Search by subject">
+	  			<button type="submit">Search</button>
+	  		</form>
 	  		<ul>
 	  			<li class="quiz-list" v-for="quiz in quizList">
 	  				<h5>{{ quiz.name }}</h5>&nbsp&nbsp<h5 style="color: #FF6F0D;">{{ quiz.subject }}</h5>
@@ -21,7 +25,7 @@
 		name: 'PublicQuizzes',
 		data () {
 			return {
-				
+				subject: '',
 			}
 		},
 		created: function() {
@@ -38,7 +42,10 @@
 		},
 		methods: {
 			getPublicQuizList: function() {
-				this.$store.dispatch('getPublicQuizList').then(response => {
+				this.$store.dispatch('getPublicQuizList', {
+					subject: this.subject
+				}).then(response => {
+					this.subject = '';
 					return true;
 				}).catch(err => {
 					console.log("Error while getting publicQuizList.");
@@ -75,6 +82,16 @@
   
 
   button.takequiz {
+  	background: #26E807;
+  }
+
+  input[type=text] {
+  	margin-top: 1%;
+  	margin-left: 2%;
+  	border: 1px solid rgb(66, 184, 221);
+  }
+
+  button[type=submit] {
   	background: #26E807;
   }
 

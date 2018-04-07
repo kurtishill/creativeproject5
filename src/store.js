@@ -125,16 +125,16 @@ export default new Vuex.Store({
     	});
     },
 
-    getPublicQuizList(context) {
-    	axios.get("/api/quiz/publicquizzes/").then(response => {
+    getPublicQuizList(context,subject) {
+    	axios.post("/api/quiz/publicquizzes/",subject).then(response => {
     		context.commit('setPublicQuizList', response.data);
     	}).catch(error => {
     		console.log("Error while fetching public quiz list");
     	});
     },
 
-    getUserQuizList(context) {
-    	axios.get("/api/quiz/userquizzes/" + context.state.user.id).then(response => {
+    getUserQuizList(context,subject) {
+    	axios.post("/api/quiz/userquizzes/" + context.state.user.id,subject).then(response => {
     		context.commit('setUserQuizList', response.data);
     	}).catch(error => {
     		console.log("Error while fetching user quiz list");

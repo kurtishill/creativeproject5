@@ -157,29 +157,56 @@ app.put("/api/quiz/:id", (req, res) => {
 
 // PUBLIC QUIZ LIST //
 
-app.get("/api/quiz/publicquizzes/", (req, res) => {
-  knex.where('public', true).select().from('quizzes').then(obj => {
-    publicQuizzes = [];
+function getQuizzesHelper(obj) {
+  quizzes = [];
     for (var i = 0; i < obj.length; i++) {
       let quiz = {name: obj[i].name, subject: obj[i].subject, quiz: JSON.parse(obj[i].quiz), public: obj[i].public};
-      publicQuizzes.push(quiz);
+      quizzes.push(quiz);
     }
-    res.send(publicQuizzes);
-  });
+    return quizzes;
+}
+
+app.post("/api/quiz/publicquizzes/", (req, res) => {
+  let subject = req.body.subject;
+  if (subject === undefined || subject === '') {
+    knex.where('public', true).select().from('quizzes').then(obj => {
+      publicQuizzes = getQuizzesHelper(obj);
+      res.send(publicQuizzes);
+    });
+  }
+  else {
+    knex.where(function() {
+      this
+        .where('public', true)
+        .andWhere('subject', subject)
+    }).select().from('quizzes').then(obj => {
+      publicQuizzes = getQuizzesHelper(obj);
+      res.send(publicQuizzes);
+    });
+  }
 });
 
 // USER QUIZ LIST //
 
-app.get("/api/quiz/userquizzes/:id", (req, res) => {
+app.post("/api/quiz/userquizzes/:id", (req, res) => {
   let id = parseInt(req.params.id);
-  knex.where('user_id', id).select().from('quizzes').then(obj => {
-    userQuizzes = [];
-    for (var i = 0; i < obj.length; i++) {
-      let quiz = {name: obj[i].name, subject: obj[i].subject, quiz: JSON.parse(obj[i].quiz), public: obj[i].public};
-      userQuizzes.push(quiz);
-    }
-    res.send(userQuizzes);
-  });
+  let subject = req.body.subject;
+  if (subject === undefined || subject === '') {
+      knex.where('user_id', id).select().from('quizzes').then(obj => {
+      userQuizzes = getQuizzesHelper(obj);
+      res.send(userQuizzes);
+    });
+  }
+  else {
+    knex.where(function() {
+      this
+        .where('user_id', id)
+        .andWhere('subject', subject)
+    }).select().from('quizzes').then(obj => {
+      userQuizzes = getQuizzesHelper(obj);
+      res.send(userQuizzes);
+    });
+  }
 });
 
 app.delete("/api/quiz/:name/user/:id", (req, res) => {
