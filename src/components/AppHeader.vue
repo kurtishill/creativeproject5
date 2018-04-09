@@ -18,7 +18,7 @@
 	       			<li class="navbar-item" v-if="loggedIn"><router-link to="/YourQuizzes" class="navbar-link">Your Quizzes</router-link></li>
 	       			<li class="navbar-item" v-if="loggedIn"><router-link to="/MakeQuiz" class="navbar-link">Make Quiz</router-link></li>
 	       			<li class="right login" style="margin: 5px;" v-if="loggedIn" v-on:click="logout"><router-link to="/">Logout</router-link></li>
-	       			<li class="right login" style="margin: 5px;" v-if="loggedIn">{{user.username}}</li>
+	       			<li class="right login" style="margin: 5px;" v-if="loggedIn"><router-link to="/YourQuizzes">{{user.username}}</router-link></li>
 	       			<form v-else class="right" v-on:submit.prevent="login">
 	       				<input v-model="email" placeholder="Email Address">
 	       				<input v-model="password" type="password" placeholder="Password">
@@ -195,6 +195,15 @@
  	form {
 		display: grid;
 		grid-template-rows: 50% 50%;
+	}
+
+	a {
+		text-decoration: none;
+		color: rgb(66, 184, 221);
+	}
+
+	a:hover {
+		color: rgb(66, 184, 221);
 	}
 
 	@media (min-width: 1200px) {

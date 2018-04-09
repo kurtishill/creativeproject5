@@ -10,7 +10,7 @@
 	  		</form>
 	  		<ul>
 	  			<li class="quiz-list" v-for="quiz in quizList">
-	  				<h5>{{ quiz.name }}</h5>&nbsp&nbsp<h5 style="color: #FF6F0D;">{{ quiz.subject }}</h5>
+	  				<h5>{{ quiz.name }}</h5>&nbsp|&nbsp<h5 style="color: #FF6F0D;">{{ quiz.subject }}</h5>&nbsp|&nbsp<h5>{{ quiz.quiz.length }} Question(s)</h5>
 	  				<router-link to="/UserQuiz" style="text-decoration: none; margin-left: auto;"><button v-on:click="takeQuiz(quiz)" class="takequiz">Take Quiz</button></router-link>
 	  			</li>
 	  		</ul>
@@ -33,6 +33,7 @@
 		},
 		computed: {
 			quizList: function() {
+				console.log(this.$store.getters.publicQuizList);
 				return this.$store.getters.publicQuizList;
 			},
 
