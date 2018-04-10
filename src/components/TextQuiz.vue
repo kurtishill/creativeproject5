@@ -63,7 +63,7 @@
 					for (var i = 0; i < this.currQuiz.length; i++) {
 						this.numRight += this.currQuiz[i].correct;
 					}
-					if (this.numRight > 5)
+					if (this.numRight > (this.currQuiz.length / 2))
 						this.encouragementText = 'Good job!';
 					else
 						this.encouragementText = 'Let\'s practice some more.';

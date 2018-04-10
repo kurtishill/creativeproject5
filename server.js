@@ -150,7 +150,6 @@ app.put("/api/quiz/:id", (req, res) => {
     let item = userQuiz.quiz[id];
     item.correct = req.body.correct;
     userQuiz.quiz[id] = item;
-    console.log(item);
   }
   res.sendStatus(200);
 });
