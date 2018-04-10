@@ -114,6 +114,8 @@
 					id: this.id,
 					correct: this.correct,
 				}).then(response => {
+					this.answer = {};
+					this.correct = 0;
 					if (this.id + 1 === this.currQuiz.length) {
 						this.$store.dispatch('getQuiz', {
 							type: this.$store.getters.quizType,
