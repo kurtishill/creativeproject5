@@ -6,7 +6,7 @@
 	       			<li class="navbar-item"><router-link to="/" class="navbar-link">Home</router-link></li>
 	       			<li class="navbar-item">
 		       			<div class="dropdown">
-		   					<li class="dropbtn"><router-link to="#" class="navbar-link" style="cursor: default;">Kindergarten Quizzes</router-link></li>
+		   					<li class="dropbtn"><router-link to="#" class="navbar-link" style="cursor: default;">Sample Quizzes</router-link></li>
 		   					<div class="dropdown-content">
 		       					<span v-on:click="quizSelect('math')"><router-link to="/MathQuiz">Math Quiz</router-link></span>
 		       					<span v-on:click="quizSelect('color')"><router-link to="/ColorQuiz">Color Quiz</router-link></span>
