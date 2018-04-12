@@ -20,7 +20,7 @@
   		</div>
   		<div v-else>
   			<h1>Ready?</h1>
-  			<button class="start-button" v-on:click="startQuiz()">Start</button>
+  			<button class="start-button" v-on:click="startNewQuiz()">Start</button>
   		</div>
   	</div>
 </template>
@@ -36,7 +36,7 @@
 				answer: {},
 				complete: false,
 				numRight: 0,
-				nextButtonText: 'Next',
+				nextButtonText: '',
 				encouragementText: '',
 				message: '',
 			}
@@ -50,8 +50,13 @@
 						break;
 					}
 				}
-				if (fresh)
+				if (fresh) {
 					this.currQuiz = this.$store.getters.currQuiz;
+					if (this.currQuiz.length === this.id + 1)
+						this.nextButtonText = 'Finish';
+					else
+						this.nextButtonText = 'Next';
+				}
 				return this.currQuiz.length > 0 && !this.complete && fresh;
 			},
 			quizFinished: function() {

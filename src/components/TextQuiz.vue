@@ -19,7 +19,7 @@
 	  		</div>
 	  		<div v-else>
 	  			<h1>Ready?</h1>
-	  			<button class="blue-button" v-on:click="startQuiz()">Start</button>
+	  			<button class="blue-button" v-on:click="startNewQuiz()">Start</button>
 	  		</div>
 	</div>
 </template>
