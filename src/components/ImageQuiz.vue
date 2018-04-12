@@ -141,7 +141,8 @@
 			prev: function() {
 				if (this.id > 0)
 					this.id--;
-				this.nextButtonText = 'Next';
+				if (this.id + 1 !== this.currQuiz.length)
+					this.nextButtonText = 'Next';
 			},
 		},
 	}
