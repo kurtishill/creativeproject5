@@ -236,11 +236,12 @@ app.post("/api/quiz/userquizzes/:id", verifyToken, (req, res) => {
 
 app.delete("/api/quiz/:name/user/:id", verifyToken, (req, res) => {
   let name = req.params.name;
+  let id = parseInt(req.params.id);
   if (id !== req.userID) {
+    console.log("here");
     res.status(403).send();
     return;
   }
-  let id = parseInt(req.params.id);
   knex('quizzes').where(function() {
     this
       .where('user_id', id)
