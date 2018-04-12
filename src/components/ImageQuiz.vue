@@ -84,14 +84,14 @@
 				this.$store.dispatch('getQuiz', {
 					type: this.$store.getters.quizType,
 				});
+			},
+			startNewQuiz: function() {
 				if (this.$store.getters.quizType === 'color') {
 					this.message = "What color is this?";
 				}
 				else if (this.$store.getters.quizType === 'animal') {
 					this.message = "What animal is this?";
 				}
-			},
-			startNewQuiz: function() {
 				this.$store.dispatch('getFreshQuiz', {
 					type: this.$store.getters.quizType
 				}).then(response => {
