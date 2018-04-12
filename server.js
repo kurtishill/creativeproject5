@@ -17,6 +17,28 @@ const knex = require('knex')(config);
 let bcrypt = require('bcrypt');
 const saltRounds = 10;
 
+// jwt setup
+const jwt = require('jsonwebtoken');
+let jwtSecret = process.env.jwtSecret;
+if (jwtSecret === undefined) {
+  console.log("You need to define a jwtSecret environment variable to continue.");
+  knex.destroy();
+  process.exit();
+}
+
+const verifyToken = (req, res, next) => {
+  const token = req.headers['authorization'];
+  if (!token)
+    return res.status(403).send({ error: 'No token provided.' });
+  jwt.verify(token, jwtSecret, function(err, decoded) {
+    if (err)
+      return res.status(500).send({ error: 'Failed to authenticate token.' });
+    // if everything good, save to request for use in other routes
+    req.userID = decoded.id;
+    next();
+  });
+}
+
 let mathQuiz = [];
 let mathId = 0;
 mathQuiz.push({id:mathId++,question:"1 + 1 = ?",choices:[{choice:"3",correct:false,num:0},{choice:"4",correct:false,num:1},
@@ -187,8 +209,12 @@ app.post("/api/quiz/publicquizzes/", (req, res) => {
 
 // USER QUIZ LIST //
 
-app.post("/api/quiz/userquizzes/:id", (req, res) => {
+app.post("/api/quiz/userquizzes/:id", verifyToken, (req, res) => {
   let id = parseInt(req.params.id);
+  if (id !== req.userID) {
+    res.status(403).send();
+    return;
+  }
   let subject = req.body.subject;
   if (subject === undefined || subject === '') {
       knex.where('user_id', id).select().from('quizzes').then(obj => {
@@ -208,8 +234,12 @@ app.post("/api/quiz/userquizzes/:id", (req, res) => {
   }
 });
 
-app.delete("/api/quiz/:name/user/:id", (req, res) => {
+app.delete("/api/quiz/:name/user/:id", verifyToken, (req, res) => {
   let name = req.params.name;
+  if (id !== req.userID) {
+    res.status(403).send();
+    return;
+  }
   let id = parseInt(req.params.id);
   knex('quizzes').where(function() {
     this
@@ -242,10 +272,13 @@ app.post("/api/quiz/takequiz/", (req, res) => {
 
 // MAKE QUIZ //
 
-app.post("/api/quiz/makequiz/:id", (req, res) => {
+app.post("/api/quiz/makequiz/:id", verifyToken, (req, res) => {
   let quizInfo = req.body.quiz;
   let id = parseInt(req.params.id);
-  console.log(id);
+  if (id !== req.userID) {
+    res.status(403).send();
+    return;
+  }
   knex('quizzes').where('name', quizInfo.name).first().then(quiz => {
     console.log(quiz);
     if (quiz !== undefined) {
@@ -273,10 +306,15 @@ app.post('/api/login', (req, res) => {
     }
     return [bcrypt.compare(req.body.password, user.hash),user];
   }).spread((result,user) => {
-    if (result)
-      res.status(200).json({user:user});
-    else
+    if (result) {
+      let token = jwt.sign({ id: user.id }, jwtSecret, {
+        expiresIn: 86400
+      });
+      res.status(200).json({user:{username:user.username,id:user.id},token:token});
+    }
+    else {
       res.status(403).send("Invalid credentials");
+    }
     return;
   }).catch(error => {
     if (error.message !== 'abort') {
@@ -307,13 +345,24 @@ app.post('/api/users', (req, res) => {
   }).then(ids => {
     return knex('users').where('id',ids[0]).first();
   }).then(user => {
-    res.status(200).json({user:user});
+    let token = jwt.sign({ id: user.id }, jwtSecret, {
+      expiresIn: 86400
+    });
+    res.status(200).json({user:user,token:token});
     return;
   }).catch(error => {
     if (error.message !== 'abort') {
       console.log(error);
       res.status(500).json({ error });
     }
+  });
+});
+
+app.get('/api/me', verifyToken, (req,res) => {
+  knex('users').where('id',req.userID).first().select('username','id').then(user => {
+    res.status(200).json({user:user});
+  }).catch(error => {
+    res.status(500).json({ error });
   });
 });
 

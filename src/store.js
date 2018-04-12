@@ -8,7 +8,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
   	user: {},
-  	loggedIn: false,
+  	token: '',
   	loginError: '',
   	registerError: '',
   	currQuiz: [],
@@ -19,7 +19,15 @@ export default new Vuex.Store({
   },
   getters: {
   	user: state => state.user,
-  	loggedIn: state => state.loggedIn,
+  	getToken: state => state.token,
+    getAuthHeader: state => {
+      return { headers: {'Authorization': localStorage.getItem('token')}};
+    },
+    loggedIn: state => {
+      if (state.token === '')
+        return false;
+      return true;
+    },
   	loginError: state => state.loginError,
   	registerError: state => state.registerError,
   	currQuiz: state => state.currQuiz,
@@ -32,9 +40,13 @@ export default new Vuex.Store({
   	setUser (state, user) {
   		state.user = user;
   	},
-  	setLogin (state, loggedIn) {
-  		state.loggedIn = loggedIn;
-  	},
+  	setToken (state, token) {
+      state.token = token;
+      if (token === '')
+        localStorage.removeItem('token');
+      else
+        localStorage.setItem('token', token);
+    },
   	setLoginError (state, message) {
   		state.loginError = message;
   	},
@@ -58,16 +70,34 @@ export default new Vuex.Store({
   	}
   },
   actions: {
+    // Initialize //
+    initialize(context) {
+      let token = localStorage.getItem('token');
+      if(token) {
+       // see if we can use the token to get my user account
+       axios.get("/api/me",context.getters.getAuthHeader).then(response => {
+         context.commit('setToken',token);
+         context.commit('setUser',response.data.user);
+       }).catch(err => {
+         // remove token and user from state
+         localStorage.removeItem('token');
+         context.commit('setUser',{}); 
+         context.commit('setToken','');
+       });
+      }
+    },
+
   	 // Registration, Login //
     register(context,user) {
       axios.post("/api/users",user).then(response => {
 		context.commit('setUser', response.data.user);
-		context.commit('setLogin',true);
+		context.commit('setToken',response.data.token);;
 		context.commit('setRegisterError',"");
 		context.commit('setLoginError',"");
       }).catch(error => {
 		context.commit('setLoginError',"");
-		context.commit('setLogin',false);
+		context.commit('setUser',{});
+    context.commit('setToken','');
 		if (error.response) {
 	  		if (error.response.status === 403)
 	    		context.commit('setRegisterError',"That email address already has an account.");
@@ -82,11 +112,13 @@ export default new Vuex.Store({
     login(context,user) {
       axios.post("/api/login",user).then(response => {
 		context.commit('setUser', response.data.user);
-		context.commit('setLogin',true);
+		context.commit('setToken',response.data.token);;
 		context.commit('setRegisterError',"");
 		context.commit('setLoginError',"");
       }).catch(error => {
 		context.commit('setRegisterError',"");
+    context.commit('setUser',{});
+    context.commit('setToken','');
 		if (error.response) {
 	  		if (error.response.status === 403 || error.response.status === 400)
 	    		context.commit('setLoginError',"Invalid login.");
@@ -99,7 +131,7 @@ export default new Vuex.Store({
 
     logout(context,user) {
       context.commit('setUser', {});
-      context.commit('setLogin',false);
+      context.commit('setToken','');
     },
 
     getQuiz(context,type) {
@@ -134,7 +166,7 @@ export default new Vuex.Store({
     },
 
     getUserQuizList(context,subject) {
-    	axios.post("/api/quiz/userquizzes/" + context.state.user.id,subject).then(response => {
+    	axios.post("/api/quiz/userquizzes/" + context.state.user.id,subject,context.getters.getAuthHeader).then(response => {
     		context.commit('setUserQuizList', response.data);
     	}).catch(error => {
     		console.log("Error while fetching user quiz list");
@@ -142,7 +174,7 @@ export default new Vuex.Store({
     },
 
     makeQuiz(context,quiz) {
-    	axios.post("/api/quiz/makequiz/" + context.state.user.id,quiz).then(response => {
+    	axios.post("/api/quiz/makequiz/" + context.state.user.id,quiz,context.getters.getAuthHeader).then(response => {
     		context.commit('setMakeQuizMessage', "You made a quiz!");
     	}).catch(error => {
     		if (error.response) {
@@ -154,7 +186,7 @@ export default new Vuex.Store({
     },
 
     deleteUserQuiz(context,name) {
-    	axios.delete("/api/quiz/" + name.name + "/user/" + context.state.user.id).then(response => {
+    	axios.delete("/api/quiz/" + name.name + "/user/" + context.state.user.id,context.getters.getAuthHeader).then(response => {
     		return context.dispatch('getUserQuizList');
     	}).catch(error => {
     		console.log("Error while deleting user quiz");
